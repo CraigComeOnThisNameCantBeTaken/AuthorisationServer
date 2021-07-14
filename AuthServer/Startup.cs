@@ -28,18 +28,19 @@ namespace AuthServer
 
             // there are entity framework implementations you can use out of the box,
             // You can also use IdentityUser (or extend that) and IdentityRole
-
             // AddIdentity instead of AddIdentityCore will register all the same services
             // plus setup a default cookie auth scheme, an external scheme for google facebook etc,
             // a two factor remember me scheme so that we dont constantly require MFA (uses security stamps somehow),
             // and a two factor scheme (unclear how this works)
             // SignInManager is also registered which sits ontop of the user manager and uses these schemes.
-            services.AddIdentityCore<ApplicationUser>()
-                .AddUserStore<ApplicationUserStore>();
+            //services.AddIdentityCore<ApplicationUser>()
+            //    .AddUserStore<ApplicationUserStore>();
 
-            services.AddAuthorization(options =>
-                options.AddPolicy("MFA",
-                    x => x.RequireClaim("amr", "mfa"))); // authentication method reference
+            // Note: you can also create your own UserClaimsPrincipleFactory to add more claims
+            // without a claims transformer and register as scoped. This is probably only better because its less db hits.
+            services.AddIdentity<ApplicationUser, ApplicationRole>(o => { })
+                .AddUserStore<ApplicationUserStore>()
+                .AddRoleStore<ApplicationRoleStore>();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -61,9 +62,10 @@ namespace AuthServer
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = false;
             });
+            services.ConfigureApplicationCookie(options => options.LoginPath = "/Login");
 
-            services.AddAuthentication("cookies")
-                .AddCookie("cookies", options => options.LoginPath = "/Login");
+            services.AddAuthorization(options =>
+                options.AddPolicy("MFA", x => x.RequireClaim("amr", "mfa"))); // authentication method reference     
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -85,7 +87,8 @@ namespace AuthServer
             {
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
-                endpoints.MapFallback(context => {
+                endpoints.MapFallback(context =>
+                {
                     context.Response.Redirect("/");
                     return Task.CompletedTask;
                 });

@@ -9,7 +9,8 @@ namespace AuthServer.IdentityServices
 {
     public class ApplicationUserStore :
         IUserStore<ApplicationUser>,
-        IUserPasswordStore<ApplicationUser>
+        IUserPasswordStore<ApplicationUser>,
+        IUserSecurityStampStore<ApplicationUser>
     {
         public Task<IdentityResult> CreateAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
@@ -122,6 +123,17 @@ namespace AuthServer.IdentityServices
         public Task<string> GetPasswordHashAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             return Task.FromResult(user.PasswordHash);
+        }
+
+        public Task SetSecurityStampAsync(ApplicationUser user, string stamp, CancellationToken cancellationToken)
+        {
+            user.SecurityStamp = stamp;
+            return Task.CompletedTask;
+        }
+
+        public Task<string> GetSecurityStampAsync(ApplicationUser user, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(user.SecurityStamp);
         }
     }
 }

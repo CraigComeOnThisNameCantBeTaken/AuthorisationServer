@@ -20,12 +20,15 @@ namespace AuthServer.Pages
     public class LoginModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserClaimsPrincipalFactory<ApplicationUser> _claimsPrincipalFactory;
         private readonly ILogger<LoginModel> _logger;
 
         public LoginModel(UserManager<ApplicationUser> userManager,
+            IUserClaimsPrincipalFactory<ApplicationUser> claimsPrincipalFactory,
             ILogger<LoginModel> logger)
         {
             _userManager = userManager;
+            _claimsPrincipalFactory = claimsPrincipalFactory;
             _logger = logger;
         }
 
@@ -61,11 +64,15 @@ namespace AuthServer.Pages
 
                 if(user != null && await _userManager.CheckPasswordAsync(user, Input.Password))
                 {
-                    var identity = new ClaimsIdentity("cookies");
-                    identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-                    identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
+                    // the same
+                    //var identity = new ClaimsIdentity("cookies");
+                    //identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                    //identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
 
-                    await HttpContext.SignInAsync("cookies", new ClaimsPrincipal(identity));
+                    //await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(identity));
+
+                    var principle = await _claimsPrincipalFactory.CreateAsync(user);
+                    await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principle);
 
                     return RedirectToPage("Profile");
                 }
