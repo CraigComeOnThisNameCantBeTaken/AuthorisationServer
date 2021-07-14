@@ -28,17 +28,18 @@ namespace AuthServer
 
             // there are entity framework implementations you can use out of the box,
             // You can also use IdentityUser (or extend that) and IdentityRole
-            //services.AddIdentity<ApplicationUser, ApplicationRole>()
-            //    .AddUserStore<ApplicationUserStore>()
-            //    .AddRoleStore<ApplicationRoleStore>()
-            //    .AddDefaultTokenProviders();
 
+            // AddIdentity instead of AddIdentityCore will register all the same services
+            // plus setup a default cookie auth scheme, an external scheme for google facebook etc,
+            // a two factor remember me scheme so that we dont constantly require MFA (uses security stamps somehow),
+            // and a two factor scheme (unclear how this works)
+            // SignInManager is also registered which sits ontop of the user manager and uses these schemes.
             services.AddIdentityCore<ApplicationUser>()
                 .AddUserStore<ApplicationUserStore>();
 
             services.AddAuthorization(options =>
                 options.AddPolicy("MFA",
-                    x => x.RequireClaim("amr", "mfa")));
+                    x => x.RequireClaim("amr", "mfa"))); // authentication method reference
 
             services.Configure<IdentityOptions>(options =>
             {
