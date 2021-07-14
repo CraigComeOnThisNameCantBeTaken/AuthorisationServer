@@ -87,6 +87,7 @@ namespace AuthServer.Pages
                 #region Signing in a user SIMPLIFIED
                 var signInResult = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, false, false);
 
+                // can do checks on the sign in result for locked out or mfa required
                 if(signInResult.Succeeded)
                     return RedirectToPage("Profile");
                 #endregion
