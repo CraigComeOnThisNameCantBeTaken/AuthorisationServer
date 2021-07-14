@@ -10,7 +10,8 @@ namespace AuthServer.IdentityServices
     public class ApplicationUserStore :
         IUserStore<ApplicationUser>,
         IUserPasswordStore<ApplicationUser>,
-        IUserSecurityStampStore<ApplicationUser>
+        IUserSecurityStampStore<ApplicationUser>,
+        IUserPhoneNumberStore<ApplicationUser>
     {
         public Task<IdentityResult> CreateAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
@@ -134,6 +135,30 @@ namespace AuthServer.IdentityServices
         public Task<string> GetSecurityStampAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             return Task.FromResult(user.SecurityStamp);
+        }
+
+        public async Task SetPhoneNumberAsync(ApplicationUser user, string phoneNumber, CancellationToken cancellationToken)
+        {
+            user.Phone = phoneNumber;
+            var currentUserData = await FindByIdAsync(user.Id.ToString(), cancellationToken);
+            InMemoryPersistance.Users.TryUpdate(user.Id, user, currentUserData);
+        }
+
+        public Task<string> GetPhoneNumberAsync(ApplicationUser user, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(user.Phone);
+        }
+
+        public Task<bool> GetPhoneNumberConfirmedAsync(ApplicationUser user, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(user.PhoneConfirmed);
+        }
+
+        public async Task SetPhoneNumberConfirmedAsync(ApplicationUser user, bool confirmed, CancellationToken cancellationToken)
+        {
+            user.PhoneConfirmed = confirmed;
+            var currentUserData = await FindByIdAsync(user.Id.ToString(), cancellationToken);
+            InMemoryPersistance.Users.TryUpdate(user.Id, user, currentUserData);
         }
     }
 }

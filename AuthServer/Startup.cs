@@ -44,6 +44,7 @@ namespace AuthServer
                 // adds default token providers which the user manager will then use behind the scenes for methods like
                 // GeneratePasswordResetToken or MFA related. Default registrations include
                 // reset password, change email, change telephone number, and 2 factor auth. You can register more.
+                // Note: email and telephone token providers both implement TotpSecurityStampBasedTokenProvider
                 .AddDefaultTokenProviders();
 
             // set the data protection token provider which is used for password resets to have a token life time.
