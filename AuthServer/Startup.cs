@@ -40,7 +40,18 @@ namespace AuthServer
             // without a claims transformer and register as scoped. This is probably only better because its less db hits.
             services.AddIdentity<ApplicationUser, ApplicationRole>(o => { })
                 .AddUserStore<ApplicationUserStore>()
-                .AddRoleStore<ApplicationRoleStore>();
+                .AddRoleStore<ApplicationRoleStore>()
+                // adds default token providers which the user manager will then use behind the scenes for methods like
+                // GeneratePasswordResetToken or MFA related. Default registrations include
+                // reset password, change email, change telephone number, and 2 factor auth. You can register more.
+                .AddDefaultTokenProviders();
+
+            // set the data protection token provider which is used for password resets to have a token life time.
+            // unclear if this is used for MFA but I guess it cant be
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+            {
+                options.TokenLifespan = TimeSpan.FromHours(3);
+            });
 
             services.Configure<IdentityOptions>(options =>
             {

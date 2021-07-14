@@ -21,14 +21,17 @@ namespace AuthServer.Pages
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUserClaimsPrincipalFactory<ApplicationUser> _claimsPrincipalFactory;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
         public LoginModel(UserManager<ApplicationUser> userManager,
             IUserClaimsPrincipalFactory<ApplicationUser> claimsPrincipalFactory,
+            SignInManager<ApplicationUser> signInManager,
             ILogger<LoginModel> logger)
         {
             _userManager = userManager;
             _claimsPrincipalFactory = claimsPrincipalFactory;
+            _signInManager = signInManager;
             _logger = logger;
         }
 
@@ -60,22 +63,33 @@ namespace AuthServer.Pages
         {
             if(ModelState.IsValid)
             {
-                var user = await _userManager.FindByNameAsync(Input.UserName);
+                #region Signing in a user
+                //var user = await _userManager.FindByNameAsync(Input.UserName);
 
-                if(user != null && await _userManager.CheckPasswordAsync(user, Input.Password))
-                {
-                    // the same
-                    //var identity = new ClaimsIdentity("cookies");
-                    //identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-                    //identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
+                //if(user != null && await _userManager.CheckPasswordAsync(user, Input.Password))
+                //{
+                //    #region manually setting claims principle
+                //    //var identity = new ClaimsIdentity("cookies");
+                //    //identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                //    //identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
+                //    //await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(identity));
+                //    #endRegion
 
-                    //await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(identity));
+                //    #region manually setting claims principle SIMPLIFIED
+                //    var principle = await _claimsPrincipalFactory.CreateAsync(user);
+                //    await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principle);
+                //    #endregion n 
 
-                    var principle = await _claimsPrincipalFactory.CreateAsync(user);
-                    await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, principle);
+                //    return RedirectToPage("Profile");
+                //}
+                #endregion
 
+                #region Signing in a user SIMPLIFIED
+                var signInResult = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, false, false);
+
+                if(signInResult.Succeeded)
                     return RedirectToPage("Profile");
-                }
+                #endregion
 
                 ModelState.AddModelError("", "Invalid name or password");
             }
