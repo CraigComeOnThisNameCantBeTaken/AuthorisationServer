@@ -30,8 +30,8 @@ namespace AuthServer
             // You can also use IdentityUser (or extend that) and IdentityRole
             // AddIdentity instead of AddIdentityCore will register all the same services
             // plus setup a default cookie auth scheme, an external scheme for google facebook etc,
-            // a two factor remember me scheme so that we dont constantly require MFA (uses security stamps somehow),
-            // and a two factor scheme (unclear how this works)
+            // a two factor remember me scheme so that we dont constantly require MFA,
+            // and a two factor scheme (which I think just enables _signInManager.GetTwoFactorAuthenticationUserAsync())
             // SignInManager is also registered which sits ontop of the user manager and uses these schemes.
             //services.AddIdentityCore<ApplicationUser>()
             //    .AddUserStore<ApplicationUserStore>();
