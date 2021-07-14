@@ -9,11 +9,15 @@
 <body>
     <header>
         <nav>
-            <a asp-page="/Register">Register</a>
-            <a asp-page="/Login">Login</a>
             @if (User.Identity.IsAuthenticated)
             {
                 <a asp-page="/Profile">Profile</a>
+                <a asp-controller="Logout" asp-action="Logout">Logout</a>
+            }
+            else
+            {
+                <a asp-page="/Register">Register</a>
+                <a asp-page="/Login">Login</a>
             }
         </nav>
     </header>

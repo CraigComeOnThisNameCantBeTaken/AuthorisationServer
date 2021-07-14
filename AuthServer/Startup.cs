@@ -23,6 +23,7 @@ namespace AuthServer
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers();
             services.AddRazorPages();
 
             // there are entity framework implementations you can use out of the box,
@@ -81,6 +82,7 @@ namespace AuthServer
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllers();
                 endpoints.MapRazorPages();
                 endpoints.MapFallback(context => {
                     context.Response.Redirect("/");
